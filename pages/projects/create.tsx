@@ -13,6 +13,8 @@ import styles from '../../styles/Default.module.css';
 import { ErrorMessage } from '@hookform/error-message';
 import { ValidationErrors } from '../../src/components/Error';
 import Spinner from 'react-bootstrap/Spinner';
+import { useAppDispatch } from '../../src/redux/store';
+import { addProject } from '../../src/redux/project';
 
 type LoginInput = {
   title: string;
@@ -22,6 +24,7 @@ type LoginInput = {
 const CreateProject: NextPage = () => {
   const axios = useAxios();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const [message, setMessage] = useState<string | null | undefined>(null);
   const [errorData, setErrorData] = useState<ErrorData>({});
@@ -59,7 +62,9 @@ const CreateProject: NextPage = () => {
 
       setMessage(resData?.message);
 
-      if (resData?.successful && resData?.data?.access_token) {
+      if (resData?.successful) {
+        dispatch(addProject(resData.data));
+        reset();
       }
     } catch (error) {
       const errorInfo = formatAxiosError(error);

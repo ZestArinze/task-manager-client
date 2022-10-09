@@ -16,16 +16,18 @@ export const ProjectListItem: React.FC<Props> = ({ project, handleDelete }) => {
         {project.description}
       </div>
 
-      <span className='badge bg-primary rounded-pill mx-1'>
-        {project.tasks.length}
-      </span>
-
-      <FontAwesomeIcon
-        icon={faTrash}
-        className='text-danger badge rounded-pill mx-1'
-        size='1x'
-        onClick={() => handleDelete(project.id)}
-      />
+      {project.tasks && project.tasks.length > 0 ? (
+        <span className='badge bg-primary rounded-pill mx-1'>
+          {project.tasks.length}
+        </span>
+      ) : (
+        <FontAwesomeIcon
+          icon={faTrash}
+          className='text-danger badge rounded-pill mx-1'
+          size='1x'
+          onClick={() => handleDelete(project.id)}
+        />
+      )}
     </li>
   );
 };

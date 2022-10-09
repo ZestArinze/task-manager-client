@@ -11,5 +11,5 @@ export type Project = {
 
   user: User;
 
-  tasks: Task[];
+  tasks?: Task[];
 };

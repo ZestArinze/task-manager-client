@@ -7,6 +7,8 @@ import { InfoModal } from '../../src/components/Modal';
 import { ProjectList } from '../../src/components/project/ProjectList';
 import { useAxios } from '../../src/hooks/use-axios';
 import { Project } from '../../src/models/project';
+import { setProjects } from '../../src/redux/project';
+import { useAppDispatch, useAppSelector } from '../../src/redux/store';
 import { ErrorData, formatAxiosError } from '../../src/utils/error.utils';
 import { ApiResponse } from '../../src/utils/serve.utils';
 import styles from '../../styles/Default.module.css';
@@ -19,13 +21,15 @@ type LoginInput = {
 const Dashboard: NextPage = () => {
   const axios = useAxios();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const [message, setMessage] = useState<string | null | undefined>(null);
   const [errorData, setErrorData] = useState<ErrorData>({});
   const [loading, setLoading] = useState<boolean>(false);
 
   const [filter, setFilters] = useState<Partial<Project>>({});
-  const [projects, setProjects] = useState<Project[]>([]);
+  //   const [projects, setProjects] = useState<Project[]>([]);
+  const projects = useAppSelector((state) => state.project.projects);
 
   useEffect(() => {
     let mounted = true;
@@ -51,7 +55,9 @@ const Dashboard: NextPage = () => {
         setMessage(resData?.message);
 
         if (resData?.successful) {
-          setProjects(resData?.data);
+          //   setProjects(resData?.data);
+
+          dispatch(setProjects({ projects: resData.data }));
         }
       } catch (error) {
         const errorInfo = formatAxiosError(error);
