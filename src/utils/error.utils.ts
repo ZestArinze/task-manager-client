@@ -13,10 +13,6 @@ export const formatAxiosError = (
   };
 
   if (error.response) {
-    // console.log(error.response.data);
-    // console.log(error.response.status);
-    // console.log(error.response.headers);
-
     const statusCode = error.response.data?.statusCode ?? error.response.status;
     const message = error.response.data?.message ?? error.response.message;
     const resError = error.response.data?.error ?? error.response.data;
@@ -30,32 +26,10 @@ export const formatAxiosError = (
   } else if (error.request) {
     errorData.message = 'Something went wrong';
   } else {
-    // Something happened in setting up the request that triggered an Error
     errorData.message = 'Something went wrong';
   }
 
   console.log({ errorData });
 
   return errorData;
-};
-
-export const getValidationErrors = (
-  field: string,
-  errorData?: Record<string, any>
-): Array<string> | null => {
-  if (!errorData) {
-    return null;
-  }
-
-  let message: Array<string> = [];
-
-  if (errorData[field]) {
-    if (Array.isArray(errorData[field])) {
-      return errorData[field];
-    } else {
-      message = [errorData[field]];
-    }
-  }
-
-  return message;
 };

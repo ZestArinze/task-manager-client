@@ -1,6 +1,6 @@
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAxios } from '../../hooks/use-axios';
 import { Task } from '../../models/task';
 import { removeTask, updateTask } from '../../redux/project';
@@ -27,29 +27,14 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
 
   const [editTask, setEditTask] = useState<boolean>(false);
 
-  const handleDelete = async (id: number) => {
-    try {
-      const response = await axios.delete<ApiResponse>(`/tasks/${id}`);
+  const [showConfirmCompleted, setShowConfirmCompleted] =
+    useState<boolean>(false);
+  const [confirmCompleted, setConfirmCompleted] = useState<boolean>(false);
 
-      const resData = response.data;
+  const [showConfirmDelete, setShowConfirmDelete] = useState<boolean>(false);
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
 
-      console.log({ resData });
-
-      setMessage(resData?.message);
-
-      if (resData?.successful) {
-        dispatch(removeTask({ projectId: task.project_id, taskId: id }));
-      }
-    } catch (error) {
-      const errorInfo = formatAxiosError(error);
-      setErrorData(errorInfo);
-      setMessage(errorInfo.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onRemoveTask = async (successful: boolean) => {
+  const onUpdateTask = async (successful: boolean) => {
     if (successful) {
       setTimeout(() => {
         setEditTask(false);
@@ -57,39 +42,93 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
     }
   };
 
-  const makeCompleted = async () => {
-    setErrorData({});
-    setLoading(true);
+  useEffect(() => {
+    let mounted = true;
 
-    try {
-      const payload: Task = {
-        ...task,
-        completed_at: new Date().toISOString(),
-      };
-
-      console.log({ payload });
-
-      const response = await axios.patch<ApiResponse>(
-        `/tasks/${task.id}`,
-        payload
-      );
-      const resData = response.data;
-
-      console.log({ resData });
-
-      setMessage(resData?.message);
-
-      if (resData?.successful) {
-        dispatch(updateTask(payload));
-      }
-    } catch (error) {
-      const errorInfo = formatAxiosError(error);
-      setErrorData(errorInfo);
-      setMessage(errorInfo.message);
-    } finally {
-      setLoading(false);
+    if (!confirmDelete) {
+      return;
     }
-  };
+
+    const handleDelete = async () => {
+      try {
+        const response = await axios.delete<ApiResponse>(`/tasks/${task.id}`);
+
+        const resData = response.data;
+
+        setMessage(resData?.message);
+
+        if (resData?.successful) {
+          dispatch(removeTask({ projectId: task.project_id, taskId: task.id }));
+        }
+      } catch (error) {
+        const errorInfo = formatAxiosError(error);
+        setErrorData(errorInfo);
+        setMessage(errorInfo.message);
+      } finally {
+        setLoading(false);
+        if (mounted) {
+          setConfirmCompleted(false);
+        }
+      }
+    };
+
+    handleDelete();
+
+    return () => {
+      mounted = false;
+    };
+  }, [confirmDelete]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (!confirmCompleted) {
+      return;
+    }
+
+    const makeCompleted = async () => {
+      setErrorData({});
+      setLoading(true);
+
+      try {
+        const payload: Task = {
+          ...task,
+          completed_at: new Date().toISOString(),
+        };
+
+        const response = await axios.patch<ApiResponse>(
+          `/tasks/${task.id}`,
+          payload
+        );
+        const resData = response.data;
+
+        if (!mounted) {
+          return;
+        }
+
+        setMessage(resData?.message);
+
+        if (resData?.successful) {
+          dispatch(updateTask(payload));
+        }
+      } catch (error) {
+        const errorInfo = formatAxiosError(error);
+        setErrorData(errorInfo);
+        setMessage(errorInfo.message);
+      } finally {
+        setLoading(false);
+        if (mounted) {
+          setConfirmCompleted(false);
+        }
+      }
+    };
+
+    makeCompleted();
+
+    return () => {
+      mounted = false;
+    };
+  }, [confirmCompleted]);
 
   return (
     <>
@@ -108,7 +147,7 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
           )
         }
       >
-        <li className='list-group-item d-flex justify-content-between align-items-start bg-light p-3'>
+        <li className='list-group-item d-flex justify-content-between align-items-start'>
           <div className='d-flex justify-content-between align-items-center'>
             <input
               className='form-check-input m-1 p-3'
@@ -116,10 +155,22 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
               value=''
               aria-label={task.title}
               checked={!!task.completed_at}
-              onChange={() => makeCompleted()}
+              onChange={() => setShowConfirmCompleted(true)}
               disabled={!!task.completed_at}
             />
-            <span>{task.title}</span>
+            <div className='p-2'>
+              <div>
+                <span className='title-sm'>{task.title}</span>
+                <br />
+                {task.description}
+              </div>
+
+              <p className='mt-2 text-secondary'>
+                <small>
+                  Created at {new Date(task.created_at).toLocaleString()}
+                </small>
+              </p>
+            </div>
           </div>
 
           {task.completed_at ? (
@@ -137,7 +188,7 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
                 icon={faTrash}
                 className='badge pill mx-4 btn btn-danger text-white'
                 size='1x'
-                onClick={() => handleDelete(task.id)}
+                onClick={() => setShowConfirmDelete(true)}
               />
             </div>
           )}
@@ -150,9 +201,23 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
         handleClose={() => setMessage(null)}
       />
 
+      <InfoModal
+        show={showConfirmCompleted}
+        message={'Are you sure you want to mark this item as completed?'}
+        handleOk={() => setConfirmCompleted(true)}
+        handleClose={() => setShowConfirmCompleted(false)}
+      />
+
+      <InfoModal
+        show={showConfirmDelete}
+        message={'Are you sure you want to delete this item?'}
+        handleOk={() => setConfirmDelete(true)}
+        handleClose={() => setShowConfirmDelete(false)}
+      />
+
       {editTask && (
         <ContainerModal show={editTask} handleClose={() => setEditTask(false)}>
-          <UpdateTask task={task} onComplete={onRemoveTask} />
+          <UpdateTask task={task} onComplete={onUpdateTask} />
         </ContainerModal>
       )}
     </>

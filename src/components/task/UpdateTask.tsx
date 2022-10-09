@@ -1,19 +1,17 @@
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BaseSyntheticEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import styles from '../../../styles/Default.module.css';
 
 import { ErrorMessage } from '@hookform/error-message';
 import Spinner from 'react-bootstrap/Spinner';
 import { useAxios } from '../../hooks/use-axios';
-import { addTask, updateTask } from '../../redux/project';
+import { Task } from '../../models/task';
+import { updateTask } from '../../redux/project';
 import { useAppDispatch } from '../../redux/store';
 import { ErrorData, formatAxiosError } from '../../utils/error.utils';
 import { ApiResponse } from '../../utils/serve.utils';
 import { ValidationErrors } from '../Error';
 import { InfoModal } from '../Modal';
-import { Task } from '../../models/task';
 
 type UpdateTaskInput = {
   title: string;
@@ -58,8 +56,6 @@ export const UpdateTask: React.FC<Props> = ({ task, onComplete }) => {
   ) => {
     e?.preventDefault();
 
-    console.log({ data });
-
     setErrorData({});
     setLoading(true);
 
@@ -76,8 +72,6 @@ export const UpdateTask: React.FC<Props> = ({ task, onComplete }) => {
       );
       const resData = response.data;
 
-      console.log({ resData });
-
       setMessage(resData?.message);
 
       if (resData?.successful) {
@@ -93,6 +87,8 @@ export const UpdateTask: React.FC<Props> = ({ task, onComplete }) => {
       const errorInfo = formatAxiosError(error);
       setErrorData(errorInfo);
       setMessage(errorInfo.message);
+
+      onComplete(false);
     } finally {
       setLoading(false);
     }
@@ -100,9 +96,7 @@ export const UpdateTask: React.FC<Props> = ({ task, onComplete }) => {
 
   return (
     <>
-      <div className='my-4'>
-        <h1 className={styles.title}>Update Task</h1>
-      </div>
+      <h4>Update Task</h4>
 
       <form onSubmit={handleSubmit(formSubmitHandler)}>
         <div className='mb-3'>
@@ -147,10 +141,6 @@ export const UpdateTask: React.FC<Props> = ({ task, onComplete }) => {
           </button>
         )}
       </form>
-
-      <div className='my-4'>
-        <Link href={'/dashboard'}>Dashboard</Link>
-      </div>
 
       <InfoModal
         show={!!message}

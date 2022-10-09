@@ -1,8 +1,6 @@
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BaseSyntheticEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import styles from '../../../styles/Default.module.css';
 
 import { ErrorMessage } from '@hookform/error-message';
 import Spinner from 'react-bootstrap/Spinner';
@@ -21,9 +19,10 @@ type AddTaskInput = {
 
 type Props = {
   projectId: number;
+  onComplete: (successful: boolean) => any;
 };
 
-export const AddTask: React.FC<Props> = ({ projectId }) => {
+export const AddTask: React.FC<Props> = ({ projectId, onComplete }) => {
   const axios = useAxios();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -40,7 +39,8 @@ export const AddTask: React.FC<Props> = ({ projectId }) => {
   } = useForm({
     defaultValues: {
       title: '',
-      description: '',
+      description:
+        'Lorem ipsum dolor sit amet consectetur adipisicing elit. prefilled text',
     },
   });
 
@@ -49,8 +49,6 @@ export const AddTask: React.FC<Props> = ({ projectId }) => {
     e?: BaseSyntheticEvent
   ) => {
     e?.preventDefault();
-
-    console.log({ data });
 
     setErrorData({});
     setLoading(true);
@@ -62,8 +60,6 @@ export const AddTask: React.FC<Props> = ({ projectId }) => {
       });
       const resData = response.data;
 
-      console.log({ resData });
-
       setMessage(resData?.message);
 
       if (resData?.successful) {
@@ -73,10 +69,14 @@ export const AddTask: React.FC<Props> = ({ projectId }) => {
           reset();
         }, 1500);
       }
+
+      onComplete(resData.successful);
     } catch (error) {
       const errorInfo = formatAxiosError(error);
       setErrorData(errorInfo);
       setMessage(errorInfo.message);
+
+      onComplete(false);
     } finally {
       setLoading(false);
     }
@@ -84,6 +84,7 @@ export const AddTask: React.FC<Props> = ({ projectId }) => {
 
   return (
     <>
+      <h4>Add Task</h4>
       <form onSubmit={handleSubmit(formSubmitHandler)}>
         <div className='mb-3'>
           <label htmlFor='exampleInputUsername1' className='form-label'>

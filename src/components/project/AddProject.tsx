@@ -1,110 +1,82 @@
-import type { NextPage } from 'next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { BaseSyntheticEvent, useEffect, useState } from 'react';
+import { BaseSyntheticEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { PageLayout } from '../../../src/components/Layout';
-import { InfoModal } from '../../../src/components/Modal';
-import { useAxios } from '../../../src/hooks/use-axios';
-import { ErrorData, formatAxiosError } from '../../../src/utils/error.utils';
-import { ApiResponse } from '../../../src/utils/serve.utils';
+import { useAxios } from '../../hooks/use-axios';
+
+import { ErrorData, formatAxiosError } from '../../utils/error.utils';
+import { ApiResponse } from '../../utils/serve.utils';
+import { InfoModal } from '../Modal';
 
 import { ErrorMessage } from '@hookform/error-message';
-import { ValidationErrors } from '../../../src/components/Error';
 import Spinner from 'react-bootstrap/Spinner';
-import { useAppDispatch, useAppSelector } from '../../../src/redux/store';
-import { addProject } from '../../../src/redux/project';
-import { Project } from '../../../src/models/project';
+import { addProject } from '../../redux/project';
+import { useAppDispatch } from '../../redux/store';
+import { ValidationErrors } from '../Error';
 
-import styles from '../../../styles/Default.module.css';
-
-type EditProjectInput = {
+type CreateProjectInput = {
   title: string;
   description: string;
 };
 
-const CreateProject: NextPage = () => {
+type Props = { onComplete: (successful: boolean) => any };
+
+export const AddProject: React.FC<Props> = ({ onComplete }) => {
   const axios = useAxios();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const projects = useAppSelector((state) => state.project.projects);
-
   const [message, setMessage] = useState<string | null | undefined>(null);
   const [errorData, setErrorData] = useState<ErrorData>({});
   const [loading, setLoading] = useState<boolean>(false);
-  const [project, setProject] = useState<Partial<Project>>({});
 
   const {
     handleSubmit,
-    setValue,
+    reset,
     register,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      title: project.title ?? '',
-      description: project.description ?? '',
+      title: '',
+      description:
+        'Lorem ipsum dolor sit amet consectetur adipisicing elit. prefilled text',
     },
   });
 
-  useEffect(() => {
-    const { id } = router.query;
-    const projectId = id ? +id : 0;
-    const project = projects.find((p) => p.id === projectId);
-
-    if (project) {
-      console.log({ project });
-      setProject(project);
-
-      setValue('title', project.title);
-      setValue('description', project.description);
-    }
-  }, [projects]);
-
   const formSubmitHandler = async (
-    data: EditProjectInput,
+    data: CreateProjectInput,
     e?: BaseSyntheticEvent
   ) => {
     e?.preventDefault();
-
-    console.log({ data });
 
     setErrorData({});
     setLoading(true);
 
     try {
-      const response = await axios.patch<ApiResponse>(
-        `/projects/${project.id}`,
-        data
-      );
+      const response = await axios.post<ApiResponse>('/projects', data);
       const resData = response.data;
 
-      console.log({ resData });
+      setMessage(resData?.message);
 
       if (resData?.successful) {
         dispatch(addProject(resData.data));
-
-        setMessage(resData?.message ?? 'Edit successfull');
-
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 1500);
+        reset();
       }
+
+      onComplete(resData.successful);
     } catch (error) {
       const errorInfo = formatAxiosError(error);
-
       setErrorData(errorInfo);
       setMessage(errorInfo.message);
+
+      onComplete(false);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <PageLayout title='Login'>
-      <div className='my-4'>
-        <h1 className={styles.title}>Add New Project</h1>
-      </div>
+    <>
+      <h4>Add Project</h4>
 
       <form onSubmit={handleSubmit(formSubmitHandler)}>
         <div className='mb-3'>
@@ -150,17 +122,11 @@ const CreateProject: NextPage = () => {
         )}
       </form>
 
-      <div className='my-4'>
-        <Link href={'/dashboard'}>Dashboard</Link>
-      </div>
-
       <InfoModal
         show={!!message}
         message={message}
         handleClose={() => setMessage(null)}
       />
-    </PageLayout>
+    </>
   );
 };
-
-export default CreateProject;

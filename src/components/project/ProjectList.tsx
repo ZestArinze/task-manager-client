@@ -1,6 +1,5 @@
 import React from 'react';
 import { Project } from '../../models/project';
-import { AddTask } from '../task/AddTask';
 import { ProjectListItem } from './ProjectListItem';
 
 type Props = {

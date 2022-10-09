@@ -26,9 +26,14 @@ a {
 } */
 
 .page-content {
-  min-width: 60%;
+  width: 600px;
+  max-width: 99%;
 }
 
 .project-card-cta {
   min-width: 200px;
+}
+
+.title-sm {
+  font-weight: 700;
 }

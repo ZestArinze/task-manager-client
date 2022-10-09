@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { ValidationErrors } from '../src/components/Error';
 import { PageLayout } from '../src/components/Layout';
 import { InfoModal } from '../src/components/Modal';
-import { ACCESS_TOKEN_KEY } from '../src/constants/storage';
+import { staticAppRoutes } from '../src/constants/config';
 import { useAxios } from '../src/hooks/use-axios';
 import { ErrorData, formatAxiosError } from '../src/utils/error.utils';
 import { ApiResponse } from '../src/utils/serve.utils';
@@ -19,7 +19,7 @@ type LoginInput = {
   password: string;
 };
 
-const SignUp: NextPage = () => {
+const SignUp = () => {
   const axios = useAxios();
   const router = useRouter();
 
@@ -48,8 +48,6 @@ const SignUp: NextPage = () => {
   ) => {
     e?.preventDefault();
 
-    console.log({ data });
-
     setErrorData({});
     setLoading(true);
 
@@ -57,13 +55,11 @@ const SignUp: NextPage = () => {
       const response = await axios.post<ApiResponse>('/auth/signup', data);
       const resData = response.data;
 
-      console.log({ resData });
-
       setMessage(resData?.message);
 
       if (resData?.successful) {
         // reset();
-        router.push('/');
+        router.push(staticAppRoutes.login);
       }
     } catch (error) {
       const errorInfo = formatAxiosError(error);
@@ -75,7 +71,7 @@ const SignUp: NextPage = () => {
   };
 
   return (
-    <PageLayout title='Login' isGuestRoute>
+    <PageLayout title='Login'>
       <div className='my-4'>
         <h1 className={styles.title}>Sign up</h1>
       </div>
@@ -168,3 +164,5 @@ const SignUp: NextPage = () => {
 };
 
 export default SignUp;
+
+SignUp.requireGuest = true;

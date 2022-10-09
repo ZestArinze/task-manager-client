@@ -11,11 +11,21 @@ import type { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 
 import { store } from '../src/redux';
+import { RouteGuard } from '../src/components/Layout/RouteGuard';
+import { NextComponentType } from 'next';
 
-function MyApp({ Component, pageProps }: AppProps) {
+type CustomAppProps = AppProps & {
+  Component: NextComponentType & {
+    requireGuest?: boolean;
+  };
+};
+
+function MyApp({ Component, pageProps, router }: CustomAppProps): JSX.Element {
   return (
     <Provider store={store}>
-      <Component {...pageProps} />
+      <RouteGuard router={router} requireGuest={Component.requireGuest}>
+        <Component {...pageProps} />
+      </RouteGuard>
     </Provider>
   );
 }

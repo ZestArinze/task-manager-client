@@ -1,9 +1,9 @@
 import type { NextPage } from 'next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { PageLayout } from '../../src/components/Layout';
-import { InfoModal } from '../../src/components/Modal';
+import { ContainerModal, InfoModal } from '../../src/components/Modal';
+import { AddProject } from '../../src/components/project/AddProject';
 import { ProjectList } from '../../src/components/project/ProjectList';
 import { useAxios } from '../../src/hooks/use-axios';
 import { Project } from '../../src/models/project';
@@ -12,6 +12,9 @@ import { useAppDispatch, useAppSelector } from '../../src/redux/store';
 import { ErrorData, formatAxiosError } from '../../src/utils/error.utils';
 import { ApiResponse } from '../../src/utils/serve.utils';
 import styles from '../../styles/Default.module.css';
+
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 type LoginInput = {
   username: string;
@@ -28,8 +31,8 @@ const Dashboard: NextPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [filter, setFilters] = useState<Partial<Project>>({});
-  //   const [projects, setProjects] = useState<Project[]>([]);
   const projects = useAppSelector((state) => state.project.projects);
+  const [addNewProject, setAddNewProject] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
@@ -45,8 +48,6 @@ const Dashboard: NextPage = () => {
         );
 
         const resData = response.data;
-
-        console.log({ resData });
 
         if (!mounted) {
           return;
@@ -75,14 +76,27 @@ const Dashboard: NextPage = () => {
     };
   }, [filter]);
 
+  const onAddProject = async (successful: boolean) => {
+    if (successful) {
+      setTimeout(() => {
+        setAddNewProject(false);
+      }, 1200);
+    }
+  };
+
   return (
-    <PageLayout title='Login'>
+    <PageLayout title='Login' showBottomNavigation>
       <div className='my-4'>
         <h1 className={styles.title}>Projects</h1>
       </div>
 
       <div className='my-4'>
-        <Link href={'projects/create'}>Add New Project</Link>
+        <FontAwesomeIcon
+          icon={faPlus}
+          className='btn btn-primary text-white badge pill mx-1'
+          size='1x'
+          onClick={() => setAddNewProject(true)}
+        />
       </div>
 
       <div>
@@ -94,6 +108,15 @@ const Dashboard: NextPage = () => {
         message={message}
         handleClose={() => setMessage(null)}
       />
+
+      {addNewProject && (
+        <ContainerModal
+          show={addNewProject}
+          handleClose={() => setAddNewProject(false)}
+        >
+          <AddProject onComplete={onAddProject} />
+        </ContainerModal>
+      )}
     </PageLayout>
   );
 };
