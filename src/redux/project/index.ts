@@ -28,6 +28,14 @@ const projectSlice = createSlice({
       state.projects.push(action.payload);
     },
 
+    updateProject: (state, action: PayloadAction<Project>) => {
+      const projectIndex = state.projects.findIndex(
+        (p) => p.id == action.payload.id
+      );
+
+      state.projects[projectIndex] = action.payload;
+    },
+
     addTask: (state, action: PayloadAction<Task>) => {
       const projectIndex = state.projects.findIndex(
         (p) => p.id == action.payload.project_id
@@ -81,6 +89,7 @@ export const {
   setProjects,
   removeProject,
   addProject,
+  updateProject,
   addTask,
   removeTask,
   updateTask,

@@ -147,7 +147,7 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
           )
         }
       >
-        <li className='list-group-item d-flex justify-content-between align-items-start'>
+        <li className='list-group-item d-flex justify-content-between align-items-center'>
           <div className='d-flex justify-content-between align-items-center'>
             <input
               className='form-check-input m-1 p-3'
@@ -176,7 +176,7 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
           {task.completed_at ? (
             []
           ) : (
-            <div>
+            <div className='d-flex justify-content-between align-items-center'>
               <FontAwesomeIcon
                 icon={faEdit}
                 className='btn btn-primary text-white badge pill mx-1'

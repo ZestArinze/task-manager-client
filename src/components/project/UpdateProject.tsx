@@ -9,7 +9,7 @@ import { InfoModal } from '../Modal';
 import { ErrorMessage } from '@hookform/error-message';
 import Spinner from 'react-bootstrap/Spinner';
 import { Project } from '../../models/project';
-import { addProject } from '../../redux/project';
+import { addProject, updateProject } from '../../redux/project';
 import { useAppDispatch, useAppSelector } from '../../redux/store';
 import { ValidationErrors } from '../Error';
 
@@ -33,7 +33,7 @@ export const UpdateProject: React.FC<Props> = ({ projectId, onComplete }) => {
   const [message, setMessage] = useState<string | null | undefined>(null);
   const [errorData, setErrorData] = useState<ErrorData>({});
   const [loading, setLoading] = useState<boolean>(false);
-  const [project, setProject] = useState<Partial<Project>>({});
+  const [project, setProject] = useState<Project | null>(null);
 
   const {
     handleSubmit,
@@ -68,14 +68,20 @@ export const UpdateProject: React.FC<Props> = ({ projectId, onComplete }) => {
     setLoading(true);
 
     try {
+      if (!project) {
+        return;
+      }
+
+      const payload: Project = { ...project, ...data };
+
       const response = await axios.patch<ApiResponse>(
         `/projects/${project.id}`,
-        data
+        payload
       );
       const resData = response.data;
 
       if (resData?.successful) {
-        dispatch(addProject(resData.data));
+        dispatch(updateProject(payload));
 
         setMessage(resData?.message ?? 'Edit successfull');
       }

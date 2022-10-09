@@ -111,7 +111,7 @@ const CreateProject: NextPage = () => {
     <PageLayout title='Login'>
       <div>
         <div className='my-4'>
-          &#8592; <Link href={'/dashboard'}>Dashboard</Link>
+          <Link href={'/dashboard'}>&#8592; Dashboard</Link>
         </div>
 
         {project && (
