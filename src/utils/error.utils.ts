@@ -17,15 +17,13 @@ export const formatAxiosError = (
     // console.log(error.response.status);
     // console.log(error.response.headers);
 
-    if (error.response.status == 422) {
-      errorData = error.response.data;
-    } else if (
-      error.response.status &&
-      error.response.status >= 200 &&
-      error.response.status < 500
-    ) {
-      errorData.message = error.message;
-      errorData.error = error.response.data;
+    const statusCode = error.response.data?.statusCode ?? error.response.status;
+    const message = error.response.data?.message ?? error.response.message;
+    const resError = error.response.data?.error ?? error.response.data;
+
+    if (statusCode && statusCode >= 200 && statusCode < 500) {
+      errorData.message = message;
+      errorData.error = resError;
     } else {
       errorData.message = 'Something went wrong';
     }
@@ -37,4 +35,25 @@ export const formatAxiosError = (
   }
 
   return errorData;
+};
+
+export const getValidationErrors = (
+  field: string,
+  errorData?: Record<string, any>
+): Array<string> | null => {
+  if (!errorData) {
+    return null;
+  }
+
+  let message: Array<string> = [];
+
+  if (errorData[field]) {
+    if (Array.isArray(errorData[field])) {
+      return errorData[field];
+    } else {
+      message = [errorData[field]];
+    }
+  }
+
+  return message;
 };

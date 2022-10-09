@@ -1,12 +1,13 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { API_BASE_URL } from '../constants/config';
 import { ACCESS_TOKEN_KEY } from '../constants/storage';
+import { formatAxiosError } from '../utils/error.utils';
 
 export function useAxios() {
   const IS_SERVER_SIDE = typeof window === 'undefined';
 
-  const defaultOptions = {
-    baseUrl: API_BASE_URL,
+  const defaultOptions: AxiosRequestConfig = {
+    baseURL: API_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
@@ -45,7 +46,7 @@ export function useAxios() {
         }
       }
 
-      return error;
+      return Promise.reject(error);
     }
   );
 
