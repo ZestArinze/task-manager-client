@@ -71,7 +71,7 @@ const SignUp = () => {
   };
 
   return (
-    <PageLayout title='Login'>
+    <PageLayout title='Sign up'>
       <div className='my-4'>
         <h1 className={styles.title}>Sign up</h1>
       </div>
