@@ -17,11 +17,13 @@ const projectSlice = createSlice({
     setProjects: (state, action: PayloadAction<ProjectState>) => {
       return action.payload;
     },
+
     removeProject: (state, action: PayloadAction<number>) => {
       state.projects = state.projects.filter(
         (project) => project.id !== action.payload
       );
     },
+
     addProject: (state, action: PayloadAction<Project>) => {
       state.projects.push(action.payload);
     },
@@ -30,6 +32,7 @@ const projectSlice = createSlice({
       const projectIndex = state.projects.findIndex(
         (p) => p.id == action.payload.project_id
       );
+
       if (projectIndex >= 0) {
         if (state.projects[projectIndex].tasks) {
           state.projects[projectIndex].tasks?.push(action.payload);
@@ -46,6 +49,7 @@ const projectSlice = createSlice({
       const projectIndex = state.projects.findIndex(
         (p) => p.id === action.payload.projectId
       );
+
       if (projectIndex >= 0) {
         state.projects[projectIndex].tasks = state.projects[
           projectIndex
@@ -54,30 +58,20 @@ const projectSlice = createSlice({
     },
 
     updateTask: (state, action: PayloadAction<Task>) => {
-      const projectIndex = state.projects.findIndex(
-        (p) => p.id == action.payload.project_id
+      const project = state.projects.find(
+        (p) => p.id === action.payload.project_id
       );
 
-      if (projectIndex >= 0) {
-        const taskIndex = state.projects[projectIndex].tasks?.findIndex(
-          (p) => p.id == action.payload.project_id
-        );
+      const projectIndex = state.projects.findIndex(
+        (p) => p.id === action.payload.project_id
+      );
 
-        if (taskIndex !== undefined && taskIndex >= 0) {
-          state.projects[projectIndex].tasks?.splice(
-            taskIndex,
-            1,
-            action.payload
-          );
-        }
+      const taskIndex = state.projects[projectIndex].tasks?.findIndex(
+        (p) => p.id === action.payload.id
+      );
 
-        // if (taskIndex !== undefined && taskIndex >= 0) {
-        //   const updatedProejectTasks =
-        //     state.projects[projectIndex].tasks ?? [];
-        //   updatedProejectTasks.splice(taskIndex, 1, action.payload);
-
-        //   state.projects[projectIndex].tasks = updatedProejectTasks;
-        // }
+      if (taskIndex && project?.tasks) {
+        project.tasks[taskIndex] = action.payload;
       }
     },
   },

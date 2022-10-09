@@ -34,6 +34,8 @@ export const formatAxiosError = (
     errorData.message = 'Something went wrong';
   }
 
+  console.log({ errorData });
+
   return errorData;
 };
 

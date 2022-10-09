@@ -107,9 +107,8 @@ const CreateProject: NextPage = () => {
       <div>
         {project && (
           <>
-            <ProjectListItem project={project} />
+            <ProjectListItem project={project} showEditButton />
             <TaskList tasks={project.tasks ?? []} />
-
             <AddTask projectId={project?.id} />
           </>
         )}

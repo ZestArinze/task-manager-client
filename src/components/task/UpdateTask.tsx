@@ -7,7 +7,7 @@ import styles from '../../../styles/Default.module.css';
 import { ErrorMessage } from '@hookform/error-message';
 import Spinner from 'react-bootstrap/Spinner';
 import { useAxios } from '../../hooks/use-axios';
-import { addTask } from '../../redux/project';
+import { addTask, updateTask } from '../../redux/project';
 import { useAppDispatch } from '../../redux/store';
 import { ErrorData, formatAxiosError } from '../../utils/error.utils';
 import { ApiResponse } from '../../utils/serve.utils';
@@ -64,10 +64,16 @@ export const UpdateTask: React.FC<Props> = ({ task, onComplete }) => {
     setLoading(true);
 
     try {
-      const response = await axios.patch<ApiResponse>(`/tasks/${task.id}`, {
+      const payload: Task = {
+        ...task,
         ...data,
         project_id: task.project_id,
-      });
+      };
+
+      const response = await axios.patch<ApiResponse>(
+        `/tasks/${task.id}`,
+        payload
+      );
       const resData = response.data;
 
       console.log({ resData });
@@ -75,7 +81,8 @@ export const UpdateTask: React.FC<Props> = ({ task, onComplete }) => {
       setMessage(resData?.message);
 
       if (resData?.successful) {
-        dispatch(addTask(resData.data));
+        dispatch(updateTask(payload));
+
         setTimeout(() => {
           reset();
         }, 1500);

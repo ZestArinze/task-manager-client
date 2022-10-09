@@ -12,9 +12,15 @@ import { InfoModal } from '../Modal';
 
 type Props = {
   project: ProjectObject;
+  showEditButton?: boolean;
+  showViewButton?: boolean;
 };
 
-export const ProjectListItem: React.FC<Props> = ({ project }) => {
+export const ProjectListItem: React.FC<Props> = ({
+  project,
+  showEditButton,
+  showViewButton,
+}) => {
   const axios = useAxios();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -61,25 +67,29 @@ export const ProjectListItem: React.FC<Props> = ({ project }) => {
           {project.description}
         </div>
 
-        <FontAwesomeIcon
-          icon={faInfo}
-          className='badge rounded-pill mx-4 btn btn-info text-white'
-          size='1x'
-          onClick={() => handleView(project.id)}
-        />
+        <span className='badge bg-primary rounded-pill mx-1'>
+          {project.tasks?.length ?? 0}
+        </span>
 
-        <FontAwesomeIcon
-          icon={faEdit}
-          className='btn btn-primary text-white badge pill mx-1'
-          size='1x'
-          onClick={() => handleEdit(project.id)}
-        />
+        {showViewButton && (
+          <FontAwesomeIcon
+            icon={faInfo}
+            className='badge rounded-pill mx-4 btn btn-info text-white'
+            size='1x'
+            onClick={() => handleView(project.id)}
+          />
+        )}
 
-        {project.tasks && project.tasks.length > 0 ? (
-          <span className='badge bg-primary rounded-pill mx-1'>
-            {project.tasks.length}
-          </span>
-        ) : (
+        {showEditButton && (
+          <FontAwesomeIcon
+            icon={faEdit}
+            className='btn btn-primary text-white badge pill mx-1'
+            size='1x'
+            onClick={() => handleEdit(project.id)}
+          />
+        )}
+
+        {project.tasks && project.tasks.length === 0 && (
           <FontAwesomeIcon
             icon={faTrash}
             className='badge pill mx-4 btn btn-danger text-white'

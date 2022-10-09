@@ -12,7 +12,7 @@ export const ProjectList: React.FC<Props> = ({ projects }) => {
     <>
       {projects.map((project, i) => (
         <ol key={i} className='list-group'>
-          <ProjectListItem project={project} />
+          <ProjectListItem project={project} showViewButton />
         </ol>
       ))}
     </>
