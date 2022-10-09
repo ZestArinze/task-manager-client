@@ -15,7 +15,7 @@ type LoginInput = {
   password: string;
 };
 
-const Dashboard: NextPage = () => {
+const CreateProject: NextPage = () => {
   const axios = useAxios();
   const router = useRouter();
 
@@ -71,11 +71,11 @@ const Dashboard: NextPage = () => {
   return (
     <PageLayout title='Login'>
       <div className='my-4'>
-        <h1 className={styles.title}>Projects</h1>
+        <h1 className={styles.title}>Add New Project</h1>
       </div>
 
       <div className='my-4'>
-        <Link href={'projects/create'}>Add New Project</Link>
+        <Link href={'/dashboard'}>Dashboard</Link>
       </div>
 
       <InfoModal
@@ -87,4 +87,4 @@ const Dashboard: NextPage = () => {
   );
 };
 
-export default Dashboard;
+export default CreateProject;

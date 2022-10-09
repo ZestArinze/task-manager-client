@@ -75,7 +75,7 @@ const SignUp: NextPage = () => {
   };
 
   return (
-    <PageLayout title='Login'>
+    <PageLayout title='Login' isGuestRoute>
       <div className='my-4'>
         <h1 className={styles.title}>Sign up</h1>
       </div>
@@ -154,8 +154,8 @@ const SignUp: NextPage = () => {
       </form>
 
       <div className='my-4'>
-        {`Don't have an account? `}
-        <Link href={'/signup'}>Sign up</Link>
+        {`Already have an account? `}
+        <Link href={'/'}>Login</Link>
       </div>
 
       <InfoModal

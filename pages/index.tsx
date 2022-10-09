@@ -73,7 +73,7 @@ const Home: NextPage = () => {
   };
 
   return (
-    <PageLayout title='Login'>
+    <PageLayout isGuestRoute title='Login'>
       <h1 className={styles.title}>Login</h1>
 
       <form onSubmit={handleSubmit(formSubmitHandler)}>
