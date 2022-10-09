@@ -1,5 +1,6 @@
 import { ErrorMessage } from '@hookform/error-message';
 import type { NextPage } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BaseSyntheticEvent, useState } from 'react';
 import Spinner from 'react-bootstrap/Spinner';
@@ -116,6 +117,11 @@ const Home: NextPage = () => {
           </button>
         )}
       </form>
+
+      <div className='my-4'>
+        {`Don't have an account? `}
+        <Link href={'/signup'}>Sign up</Link>
+      </div>
 
       <InfoModal
         show={!!message}
