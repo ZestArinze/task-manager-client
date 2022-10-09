@@ -24,3 +24,7 @@ a {
     background: black;
   }
 }
+
+.page-content {
+  min-width: 60%;
+}

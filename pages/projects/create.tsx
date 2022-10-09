@@ -10,9 +10,13 @@ import { ErrorData, formatAxiosError } from '../../src/utils/error.utils';
 import { ApiResponse } from '../../src/utils/serve.utils';
 import styles from '../../styles/Default.module.css';
 
+import { ErrorMessage } from '@hookform/error-message';
+import { ValidationErrors } from '../../src/components/Error';
+import Spinner from 'react-bootstrap/Spinner';
+
 type LoginInput = {
-  username: string;
-  password: string;
+  title: string;
+  description: string;
 };
 
 const CreateProject: NextPage = () => {
@@ -30,11 +34,9 @@ const CreateProject: NextPage = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      username: '',
-      password: 'zeST83@_&nse',
-      password_confirmation: 'zeST83@_&nse',
-      first_name: 'John',
-      last_name: 'Doe',
+      title: '',
+      description:
+        'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem beatae asperiores optio ipsum deleniti minus voluptatibus error repellat labore voluptate, esse soluta? Magnam at magni ipsum aperiam, aliquid tempore soluta.',
     },
   });
 
@@ -50,7 +52,7 @@ const CreateProject: NextPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post<ApiResponse>('/projects/index', data);
+      const response = await axios.post<ApiResponse>('/projects', data);
       const resData = response.data;
 
       console.log({ resData });
@@ -73,6 +75,50 @@ const CreateProject: NextPage = () => {
       <div className='my-4'>
         <h1 className={styles.title}>Add New Project</h1>
       </div>
+
+      <form onSubmit={handleSubmit(formSubmitHandler)}>
+        <div className='mb-3'>
+          <label htmlFor='exampleInputUsername1' className='form-label'>
+            Project Title
+          </label>
+          <input
+            type='text'
+            className='form-control'
+            id='exampleInputUsername1'
+            aria-describedby='usernameHelp'
+            {...register('title', {
+              required: { value: true, message: 'This field is required' },
+            })}
+          />
+          <ErrorMessage errors={errors} name='title' />
+          <ValidationErrors errors={errorData?.error?.title} />
+        </div>
+
+        <div className='mb-3'>
+          <label htmlFor='exampleFormControlTextarea1' className='form-label'>
+            Description
+          </label>
+          <textarea
+            className='form-control'
+            id='exampleFormControlTextarea1'
+            rows={3}
+            {...register('description', {
+              required: { value: true, message: 'This field is required' },
+            })}
+          ></textarea>
+
+          <ErrorMessage errors={errors} name='description' />
+          <ValidationErrors errors={errorData?.error?.description} />
+        </div>
+
+        {loading ? (
+          <Spinner animation='border' variant='primary' />
+        ) : (
+          <button type='submit' className='btn btn-primary'>
+            Submit
+          </button>
+        )}
+      </form>
 
       <div className='my-4'>
         <Link href={'/dashboard'}>Dashboard</Link>

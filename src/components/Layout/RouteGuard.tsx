@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Spinner from 'react-bootstrap/Spinner';
 import { ACCESS_TOKEN_KEY } from '../../constants/storage';
 
@@ -13,22 +13,24 @@ export const RouteGuard: React.FC<Props> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
 
-  function handleAuthCheck(url: string) {
-    if (typeof localStorage === 'undefined') {
-      return;
+  const handleAuthCheck = useCallback((url: string) => {
+    {
+      if (typeof localStorage === 'undefined') {
+        return;
+      }
+
+      const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+      if (accessToken) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+        router.push('/');
+      }
     }
 
-    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-
-    console.log({ accessToken });
-
-    if (accessToken) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-      router.push('/');
-    }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setCheckingAuth(true);
@@ -58,8 +60,6 @@ export const RouteGuard: React.FC<Props> = ({ children }) => {
 
   return (
     <>
-      <p>isLoggedIn: {isLoggedIn ? 'Yes' : 'No'}</p>
-
       {checkingAuth ? (
         <Spinner animation='border' variant='primary' />
       ) : (

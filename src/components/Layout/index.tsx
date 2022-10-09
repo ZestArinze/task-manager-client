@@ -44,28 +44,22 @@ export const PageLayout: React.FC<Props> = ({
           <link rel='icon' href='/favicon.ico' />
         </Head>
 
-        {/* <Nav className='justify-content-center' activeKey='/home'>
-          <Nav.Item>
-            <Link href='#' passHref>
-              <Nav.Link>Link</Nav.Link>
-            </Link>
-          </Nav.Item>
-        </Nav> */}
-
         <main className={styles.main}>
-          {isGuestRoute ? (
-            <>{children}</>
-          ) : (
-            <>
-              <RouteGuard>{children}</RouteGuard>
+          <div className='page-content '>
+            {isGuestRoute ? (
+              <>{children}</>
+            ) : (
+              <>
+                <RouteGuard>{children}</RouteGuard>
 
-              <div className='my-5'>
+                {/* <div className='my-5'>
                 <a href='#' className='btn btn-danger' onClick={handleLogout}>
                   Logout
                 </a>
-              </div>
-            </>
-          )}
+              </div> */}
+              </>
+            )}
+          </div>
         </main>
 
         <footer className={styles.footer}>

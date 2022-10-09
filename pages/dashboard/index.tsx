@@ -1,11 +1,12 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { BaseSyntheticEvent, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
 import { PageLayout } from '../../src/components/Layout';
 import { InfoModal } from '../../src/components/Modal';
+import { ProjectList } from '../../src/components/project/ProjectList';
 import { useAxios } from '../../src/hooks/use-axios';
+import { Project } from '../../src/models/project';
 import { ErrorData, formatAxiosError } from '../../src/utils/error.utils';
 import { ApiResponse } from '../../src/utils/serve.utils';
 import styles from '../../styles/Default.module.css';
@@ -23,50 +24,50 @@ const Dashboard: NextPage = () => {
   const [errorData, setErrorData] = useState<ErrorData>({});
   const [loading, setLoading] = useState<boolean>(false);
 
-  const {
-    handleSubmit,
-    reset,
-    register,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      username: '',
-      password: 'zeST83@_&nse',
-      password_confirmation: 'zeST83@_&nse',
-      first_name: 'John',
-      last_name: 'Doe',
-    },
-  });
+  const [filter, setFilters] = useState<Partial<Project>>({});
+  const [projects, setProjects] = useState<Project[]>([]);
 
-  const formSubmitHandler = async (
-    data: LoginInput,
-    e?: BaseSyntheticEvent
-  ) => {
-    e?.preventDefault();
-
-    console.log({ data });
+  useEffect(() => {
+    let mounted = true;
 
     setErrorData({});
     setLoading(true);
 
-    try {
-      const response = await axios.post<ApiResponse>('/projects/index', data);
-      const resData = response.data;
+    const loadProjects = async () => {
+      try {
+        const response = await axios.post<ApiResponse>(
+          '/projects/index',
+          filter
+        );
 
-      console.log({ resData });
+        const resData = response.data;
 
-      setMessage(resData?.message);
+        console.log({ resData });
 
-      if (resData?.successful && resData?.data?.access_token) {
+        if (!mounted) {
+          return;
+        }
+
+        setMessage(resData?.message);
+
+        if (resData?.successful) {
+          setProjects(resData?.data);
+        }
+      } catch (error) {
+        const errorInfo = formatAxiosError(error);
+        setErrorData(errorInfo);
+        setMessage(errorInfo.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      const errorInfo = formatAxiosError(error);
-      setErrorData(errorInfo);
-      setMessage(errorInfo.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    loadProjects();
+
+    return () => {
+      mounted = false;
+    };
+  }, [filter]);
 
   return (
     <PageLayout title='Login'>
@@ -76,6 +77,10 @@ const Dashboard: NextPage = () => {
 
       <div className='my-4'>
         <Link href={'projects/create'}>Add New Project</Link>
+      </div>
+
+      <div>
+        <ProjectList projects={projects} />
       </div>
 
       <InfoModal
