@@ -1,6 +1,6 @@
 # Task Manager - A Demo App
 
-A React app for tasks management, built with love, for demonstration purposes.
+A React app for tasks management, built with love, for demonstration purposes. This app depends on the [Task Manager API](https://github.com/ZestArinze/task-manager-api), so make sure to clone and connect to the API as well.
 
 ## Installation
 
