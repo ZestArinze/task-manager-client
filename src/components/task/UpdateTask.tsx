@@ -1,27 +1,30 @@
-import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BaseSyntheticEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { PageLayout } from '../../src/components/Layout';
-import { InfoModal } from '../../src/components/Modal';
-import { useAxios } from '../../src/hooks/use-axios';
-import { ErrorData, formatAxiosError } from '../../src/utils/error.utils';
-import { ApiResponse } from '../../src/utils/serve.utils';
-import styles from '../../styles/Default.module.css';
+import styles from '../../../styles/Default.module.css';
 
 import { ErrorMessage } from '@hookform/error-message';
-import { ValidationErrors } from '../../src/components/Error';
 import Spinner from 'react-bootstrap/Spinner';
-import { useAppDispatch } from '../../src/redux/store';
-import { addProject } from '../../src/redux/project';
+import { useAxios } from '../../hooks/use-axios';
+import { addTask } from '../../redux/project';
+import { useAppDispatch } from '../../redux/store';
+import { ErrorData, formatAxiosError } from '../../utils/error.utils';
+import { ApiResponse } from '../../utils/serve.utils';
+import { ValidationErrors } from '../Error';
+import { InfoModal } from '../Modal';
+import { Task } from '../../models/task';
 
-type CreateProjectInput = {
+type UpdateTaskInput = {
   title: string;
   description: string;
 };
 
-const CreateProject: NextPage = () => {
+type Propns = {
+  task: Task;
+};
+
+export const UpdateTask: React.FC<Propns> = ({ task }) => {
   const axios = useAxios();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -44,7 +47,7 @@ const CreateProject: NextPage = () => {
   });
 
   const formSubmitHandler = async (
-    data: CreateProjectInput,
+    data: UpdateTaskInput,
     e?: BaseSyntheticEvent
   ) => {
     e?.preventDefault();
@@ -55,7 +58,10 @@ const CreateProject: NextPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post<ApiResponse>('/projects', data);
+      const response = await axios.post<ApiResponse>('/tasks', {
+        ...data,
+        project_id: task.project_id,
+      });
       const resData = response.data;
 
       console.log({ resData });
@@ -63,11 +69,10 @@ const CreateProject: NextPage = () => {
       setMessage(resData?.message);
 
       if (resData?.successful) {
-        dispatch(addProject(resData.data));
-        reset();
+        dispatch(addTask(resData.data));
 
         setTimeout(() => {
-          router.push('/dashboard');
+          reset();
         }, 1500);
       }
     } catch (error) {
@@ -80,15 +85,15 @@ const CreateProject: NextPage = () => {
   };
 
   return (
-    <PageLayout title='Login'>
+    <>
       <div className='my-4'>
-        <h1 className={styles.title}>Add New Project</h1>
+        <h1 className={styles.title}>Update Task</h1>
       </div>
 
       <form onSubmit={handleSubmit(formSubmitHandler)}>
         <div className='mb-3'>
           <label htmlFor='exampleInputUsername1' className='form-label'>
-            Project Title
+            Task Title
           </label>
           <input
             type='text'
@@ -138,8 +143,6 @@ const CreateProject: NextPage = () => {
         message={message}
         handleClose={() => setMessage(null)}
       />
-    </PageLayout>
+    </>
   );
 };
-
-export default CreateProject;

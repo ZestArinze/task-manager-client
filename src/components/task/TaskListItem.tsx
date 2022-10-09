@@ -1,20 +1,20 @@
-import { faEdit, faTrash, faInfo } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useAxios } from '../../hooks/use-axios';
-import { Project as ProjectObject } from '../../models/project';
-import { removeProject } from '../../redux/project';
+import { Task as TaskObject } from '../../models/task';
+import { removeTask } from '../../redux/project';
 import { useAppDispatch } from '../../redux/store';
 import { ErrorData, formatAxiosError } from '../../utils/error.utils';
 import { ApiResponse } from '../../utils/serve.utils';
 import { InfoModal } from '../Modal';
 
 type Props = {
-  project: ProjectObject;
+  task: TaskObject;
 };
 
-export const ProjectListItem: React.FC<Props> = ({ project }) => {
+export const TaskListItem: React.FC<Props> = ({ task }) => {
   const axios = useAxios();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -25,7 +25,7 @@ export const ProjectListItem: React.FC<Props> = ({ project }) => {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await axios.delete<ApiResponse>(`/projects/${id}`);
+      const response = await axios.delete<ApiResponse>(`/tasks/${id}`);
 
       const resData = response.data;
 
@@ -34,7 +34,7 @@ export const ProjectListItem: React.FC<Props> = ({ project }) => {
       setMessage(resData?.message);
 
       if (resData?.successful) {
-        dispatch(removeProject(id));
+        dispatch(removeTask({ projectId: task.project_id, taskId: id }));
       }
     } catch (error) {
       const errorInfo = formatAxiosError(error);
@@ -46,47 +46,37 @@ export const ProjectListItem: React.FC<Props> = ({ project }) => {
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/projects/edit/${id}`);
-  };
-
-  const handleView = (id: number) => {
-    router.push(`/projects/${id}`);
+    router.push(`/tasks/edit/${id}`);
   };
 
   return (
     <>
-      <li className='list-group-item d-flex justify-content-between align-items-center bg-light p-3'>
-        <div className='ms-2 me-auto'>
-          <div className='fw-bold'>{project.title}</div>
-          {project.description}
+      <li className='list-group-item d-flex justify-content-between align-items-start bg-light p-3'>
+        <div>
+          <input
+            className='form-check-input me-1'
+            type='checkbox'
+            value=''
+            aria-label='...'
+          />
+          {task.title}
         </div>
 
-        <FontAwesomeIcon
-          icon={faInfo}
-          className='badge rounded-pill mx-4 btn btn-info text-white'
-          size='1x'
-          onClick={() => handleView(project.id)}
-        />
+        <div>
+          <FontAwesomeIcon
+            icon={faEdit}
+            className='btn btn-primary text-white badge pill mx-1'
+            size='1x'
+            onClick={() => handleEdit(task.id)}
+          />
 
-        <FontAwesomeIcon
-          icon={faEdit}
-          className='btn btn-primary text-white badge pill mx-1'
-          size='1x'
-          onClick={() => handleEdit(project.id)}
-        />
-
-        {project.tasks && project.tasks.length > 0 ? (
-          <span className='badge bg-primary rounded-pill mx-1'>
-            {project.tasks.length}
-          </span>
-        ) : (
           <FontAwesomeIcon
             icon={faTrash}
             className='badge pill mx-4 btn btn-danger text-white'
             size='1x'
-            onClick={() => handleDelete(project.id)}
+            onClick={() => handleDelete(task.id)}
           />
-        )}
+        </div>
       </li>
 
       <InfoModal

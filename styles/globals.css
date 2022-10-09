@@ -28,3 +28,7 @@ a {
 .page-content {
   min-width: 60%;
 }
+
+.project-card-cta {
+  min-width: 200px;
+}
