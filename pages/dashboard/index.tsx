@@ -85,7 +85,7 @@ const Dashboard: NextPage = () => {
   };
 
   return (
-    <PageLayout title='Login' showBottomNavigation>
+    <PageLayout title='Projects' showBottomNavigation>
       <div className='my-4'>
         <h1 className={styles.title}>Projects</h1>
       </div>
