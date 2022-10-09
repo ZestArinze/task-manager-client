@@ -9,7 +9,6 @@ import { ValidationErrors } from '../src/components/Error';
 import { PageLayout } from '../src/components/Layout';
 import { InfoModal } from '../src/components/Modal';
 import { staticAppRoutes } from '../src/constants/config';
-import { ACCESS_TOKEN_KEY } from '../src/constants/storage';
 import { useAxios } from '../src/hooks/use-axios';
 import { ErrorData, formatAxiosError } from '../src/utils/error.utils';
 import { ApiResponse } from '../src/utils/serve.utils';
@@ -20,7 +19,7 @@ type LoginInput = {
   password: string;
 };
 
-const Home = () => {
+const SignUp = () => {
   const axios = useAxios();
   const router = useRouter();
 
@@ -36,7 +35,10 @@ const Home = () => {
   } = useForm({
     defaultValues: {
       username: '',
-      password: '',
+      password: 'zeST83@_&nse',
+      password_confirmation: 'zeST83@_&nse',
+      first_name: 'John',
+      last_name: 'Doe',
     },
   });
 
@@ -50,15 +52,14 @@ const Home = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post<ApiResponse>('/auth/login', data);
+      const response = await axios.post<ApiResponse>('/auth/signup', data);
       const resData = response.data;
 
       setMessage(resData?.message);
 
-      if (resData?.successful && resData?.data?.access_token) {
+      if (resData?.successful) {
         // reset();
-        localStorage.setItem(ACCESS_TOKEN_KEY, resData.data.access_token);
-        router.push(staticAppRoutes.dashboard);
+        router.push(staticAppRoutes.login);
       }
     } catch (error) {
       const errorInfo = formatAxiosError(error);
@@ -71,7 +72,9 @@ const Home = () => {
 
   return (
     <PageLayout title='Login'>
-      <h1 className={styles.title}>Login</h1>
+      <div className='my-4'>
+        <h1 className={styles.title}>Sign up</h1>
+      </div>
 
       <form onSubmit={handleSubmit(formSubmitHandler)}>
         <div className='mb-3'>
@@ -82,7 +85,6 @@ const Home = () => {
             type='text'
             className='form-control'
             id='exampleInputUsername1'
-            aria-describedby='usernameHelp'
             {...register('username', {
               required: { value: true, message: 'This field is required' },
             })}
@@ -106,6 +108,38 @@ const Home = () => {
           <ValidationErrors errors={errorData?.error?.password} />
         </div>
 
+        <div className='mb-3'>
+          <label htmlFor='firstName' className='form-label'>
+            First Name
+          </label>
+          <input
+            type='text'
+            className='form-control'
+            id='firstName'
+            {...register('first_name', {
+              required: { value: true, message: 'This field is required' },
+            })}
+          />
+          <ErrorMessage errors={errors} name='first_name' />
+          <ValidationErrors errors={errorData?.error?.first_name} />
+        </div>
+
+        <div className='mb-3'>
+          <label htmlFor='lastName' className='form-label'>
+            Last Name
+          </label>
+          <input
+            type='text'
+            className='form-control'
+            id='lastName'
+            {...register('last_name', {
+              required: { value: true, message: 'This field is required' },
+            })}
+          />
+          <ErrorMessage errors={errors} name='last_name' />
+          <ValidationErrors errors={errorData?.error?.last_name} />
+        </div>
+
         {loading ? (
           <Spinner animation='border' variant='primary' />
         ) : (
@@ -116,8 +150,8 @@ const Home = () => {
       </form>
 
       <div className='my-4'>
-        {`Don't have an account? `}
-        <Link href={'/signup'}>Sign up</Link>
+        {`Already have an account? `}
+        <Link href={'/'}>Login</Link>
       </div>
 
       <InfoModal
@@ -129,6 +163,6 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default SignUp;
 
-Home.requireGuest = true;
+SignUp.requireGuest = true;
