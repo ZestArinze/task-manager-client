@@ -1,4 +1,4 @@
-import { faEdit, faTrash, faInfo } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faInfo, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';

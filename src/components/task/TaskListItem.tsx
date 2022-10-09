@@ -1,27 +1,28 @@
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useAxios } from '../../hooks/use-axios';
-import { Task as TaskObject } from '../../models/task';
+import { Task } from '../../models/task';
 import { removeTask } from '../../redux/project';
 import { useAppDispatch } from '../../redux/store';
 import { ErrorData, formatAxiosError } from '../../utils/error.utils';
 import { ApiResponse } from '../../utils/serve.utils';
-import { InfoModal } from '../Modal';
+import { ContainerModal, InfoModal } from '../Modal';
+import { UpdateTask } from './UpdateTask';
 
 type Props = {
-  task: TaskObject;
+  task: Task;
 };
 
 export const TaskListItem: React.FC<Props> = ({ task }) => {
   const axios = useAxios();
   const dispatch = useAppDispatch();
-  const router = useRouter();
 
   const [message, setMessage] = useState<string | null | undefined>(null);
   const [errorData, setErrorData] = useState<ErrorData>({});
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [editTask, setEditTask] = useState<boolean>(false);
 
   const handleDelete = async (id: number) => {
     try {
@@ -45,8 +46,12 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
     }
   };
 
-  const handleEdit = (id: number) => {
-    router.push(`/tasks/edit/${id}`);
+  const onRemoveTask = async (successful: boolean) => {
+    if (successful) {
+      setTimeout(() => {
+        setEditTask(false);
+      }, 1200);
+    }
   };
 
   return (
@@ -67,7 +72,7 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
             icon={faEdit}
             className='btn btn-primary text-white badge pill mx-1'
             size='1x'
-            onClick={() => handleEdit(task.id)}
+            onClick={() => setEditTask(true)}
           />
 
           <FontAwesomeIcon
@@ -84,6 +89,12 @@ export const TaskListItem: React.FC<Props> = ({ task }) => {
         message={message}
         handleClose={() => setMessage(null)}
       />
+
+      {editTask && (
+        <ContainerModal show={editTask} handleClose={() => setEditTask(false)}>
+          <UpdateTask task={task} onComplete={onRemoveTask} />
+        </ContainerModal>
+      )}
     </>
   );
 };

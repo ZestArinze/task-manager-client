@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { BaseSyntheticEvent, useState } from 'react';
+import { BaseSyntheticEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import styles from '../../../styles/Default.module.css';
 
@@ -20,11 +20,12 @@ type UpdateTaskInput = {
   description: string;
 };
 
-type Propns = {
+type Props = {
   task: Task;
+  onComplete: (successful: boolean) => any;
 };
 
-export const UpdateTask: React.FC<Propns> = ({ task }) => {
+export const UpdateTask: React.FC<Props> = ({ task, onComplete }) => {
   const axios = useAxios();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -37,14 +38,19 @@ export const UpdateTask: React.FC<Propns> = ({ task }) => {
     handleSubmit,
     reset,
     register,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
       title: '',
-      description:
-        'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem beatae asperiores optio ipsum deleniti minus voluptatibus error repellat labore voluptate, esse soluta? Magnam at magni ipsum aperiam, aliquid tempore soluta.',
+      description: '',
     },
   });
+
+  useEffect(() => {
+    setValue('title', task.title);
+    setValue('description', task.description);
+  }, []);
 
   const formSubmitHandler = async (
     data: UpdateTaskInput,
@@ -58,7 +64,7 @@ export const UpdateTask: React.FC<Propns> = ({ task }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post<ApiResponse>('/tasks', {
+      const response = await axios.patch<ApiResponse>(`/tasks/${task.id}`, {
         ...data,
         project_id: task.project_id,
       });
@@ -70,11 +76,12 @@ export const UpdateTask: React.FC<Propns> = ({ task }) => {
 
       if (resData?.successful) {
         dispatch(addTask(resData.data));
-
         setTimeout(() => {
           reset();
         }, 1500);
       }
+
+      onComplete(resData.successful);
     } catch (error) {
       const errorInfo = formatAxiosError(error);
       setErrorData(errorInfo);

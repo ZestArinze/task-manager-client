@@ -57,20 +57,27 @@ const projectSlice = createSlice({
       const projectIndex = state.projects.findIndex(
         (p) => p.id == action.payload.project_id
       );
+
       if (projectIndex >= 0) {
-        if (state.projects[projectIndex].tasks) {
-          const taskIndex = state.projects[projectIndex].tasks?.findIndex(
-            (p) => p.id == action.payload.project_id
+        const taskIndex = state.projects[projectIndex].tasks?.findIndex(
+          (p) => p.id == action.payload.project_id
+        );
+
+        if (taskIndex !== undefined && taskIndex >= 0) {
+          state.projects[projectIndex].tasks?.splice(
+            taskIndex,
+            1,
+            action.payload
           );
-
-          if (taskIndex !== undefined && taskIndex >= 0) {
-            const updatedProejectTasks =
-              state.projects[projectIndex].tasks ?? [];
-            updatedProejectTasks.splice(taskIndex, 1, action.payload);
-
-            state.projects[projectIndex].tasks = updatedProejectTasks;
-          }
         }
+
+        // if (taskIndex !== undefined && taskIndex >= 0) {
+        //   const updatedProejectTasks =
+        //     state.projects[projectIndex].tasks ?? [];
+        //   updatedProejectTasks.splice(taskIndex, 1, action.payload);
+
+        //   state.projects[projectIndex].tasks = updatedProejectTasks;
+        // }
       }
     },
   },
